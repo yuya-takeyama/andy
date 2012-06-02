@@ -1,0 +1,11 @@
+%html
+  %head
+    %title Andy - #{@repo_name}
+
+  %body
+    %h1 Andy - #{@repo_name}
+    %a{:href => "/"} ../
+    %ul
+      - @branches.each do |branch|
+        %li
+          %a{:href => "/#{@repo_name}/#{branch.name}.apk"} #{branch.name}
