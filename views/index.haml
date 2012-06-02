@@ -1,11 +1,5 @@
-%html
-  %head
-    %title Andy
-
-  %body
-    %h1 Andy
-    %p Choose a repo
-    %ul
-      - @repos.each do |key, repo|
-        %li
-          %a(href=key) #{key}
+%p Choose a repo
+%ul
+  - @repos.each do |key, repo|
+    %li
+      %a(href=key) #{key}

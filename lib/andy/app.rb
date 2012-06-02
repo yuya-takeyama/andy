@@ -9,6 +9,7 @@ class Andy::App < ::Sinatra::Base
 
   get '/:repo' do
     @repo_name = params[:repo]
+    @title = @repo_name
     repo_config = settings.config['repositories'][@repo_name]
     @repo = ::Grit::Repo.new(repo_config['url'])
     @branches = @repo.branches

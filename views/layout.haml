@@ -1,0 +1,7 @@
+%html
+  %head
+    %title Andy#{" - #{@title}" if defined?(@title)}
+
+  %body
+    %h1 Andy#{" - #{@title}" if defined?(@title)}
+    = yield
