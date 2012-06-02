@@ -1,7 +1,7 @@
-module Andy
-class App < Sinatra::Base
+require 'sinatra/base'
+
+class Andy::App < ::Sinatra::Base
   get '/' do
     "Hello, I'm Andy."
   end
-end
 end
