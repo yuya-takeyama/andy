@@ -1,7 +1,9 @@
-andy
+Andy
 ====
 
-Closed distribution server for Android apk files
+Andy builds apk file from your repo and distributes for you.
+
+Currently, and can checkout worktree only from Subversion.
 
 Author
 ------

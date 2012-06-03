@@ -1,8 +1,6 @@
 TODO for andy
 =============
 
-* Repo viewer
-  * master (for Git)
-  * trunk (for Subversion)
-  * branches
-  * tags
+* Display Building progression
+* Checking-out from Git repo
+* Twitter Bootstrap
