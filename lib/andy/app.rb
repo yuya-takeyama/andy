@@ -87,10 +87,6 @@ class Andy::App < ::Sinatra::Base
     Dir.glob(dir + "/*.apk").map {|f| f.gsub(%r{^.*/}, '') }
   end
 
-  def repo(project)
-    ::Grit::Repo.new(project['repo']['url'])
-  end
-
   def put_local_properties(dir)
     open("#{dir}/local.properties", 'w') do |file|
       file.puts "sdk.dir=#{settings.config['android']['sdk_dir']}"

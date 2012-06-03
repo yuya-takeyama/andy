@@ -4,9 +4,12 @@
   %a(href="/projects/#{@project_id}#{@path}?build=on") Build this branch
 
 - unless @repo.android_project_root? @path
-  %p This is not Android project root.
+  %p This is not an Android project root.
 
-%ul
-  - @apks.each do |file|
-    %li
-      %a(href="/projects/#{@project_id}#{@path}/#{file}") #{file}
+- if @apks.empty?
+  %p No apk files are found. Try to build this branch.
+- else
+  %ul
+    - @apks.each do |file|
+      %li
+        %a(href="/projects/#{@project_id}#{@path}/#{file}") #{file}
