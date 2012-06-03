@@ -2,6 +2,24 @@ require 'andy'
 require 'yaml'
 require 'digest/sha1'
 
+class SvnRepo
+  def initialize(url)
+    @url = url
+  end
+
+  def branches
+    `svn ls #{@url}/branches`.split("\n").grep(%r{/$}).map{|r| r.sub(%r{/$}, '') }
+  end
+
+  def tags
+    `svn ls #{@url}/tags`.split("\n").grep(%r{/$}).map{|r| r.sub(%r{/$}, '') }
+  end
+
+  def android_project_root?(path)
+    `svn ls #{@url}#{path}`.split("\n").any? {|f| f == "AndroidManifest.xml" }
+  end
+end
+
 class Andy::App < ::Sinatra::Base
   set :haml, {:format => :html5}
   set :root, Andy::ROOT_DIR
@@ -9,20 +27,30 @@ class Andy::App < ::Sinatra::Base
   set :config, YAML::load(open(File.expand_path('config/config.yml', settings.root)))
   set :repos, settings.config['repositories']
 
+  ['/projects/:project_id', '/projects/:project_id/*'].each do |path|
+    before path do
+      @project_id = params[:project_id]
+      @project    = settings.config['projects'][@project_id]
+      @repo       = ::SvnRepo.new(@project['repo']['url'])
+    end
+  end
+
   get '/:repo/*.apk' do
     branch = params[:splat].join('/')
     setup_worktree(params[:repo], branch)
   end
 
-  get '/:repo' do
-    @repo_name = params[:repo]
-    @title = @repo_name
-    @branches = repo.branches
-    haml :repo
+  get '/projects/:project_id/*' do
+    @path = "/" + params['splat'].join('/')
+    haml :'projects/branch', :locals => {:title => @project['name'] + " - " + @path}
+  end
+
+  get '/projects/:project_id' do
+    haml :'projects/index', :locals => {:title => @project['name']}
   end
 
   get '/' do
-    @repos = settings.config['repositories']
+    @projects = settings.config['projects']
     haml :index
   end
 
@@ -30,8 +58,8 @@ class Andy::App < ::Sinatra::Base
     settings.repos[params[:repo]]
   end
 
-  def repo
-    ::Grit::Repo.new(repo_config['url'])
+  def repo(project)
+    ::Grit::Repo.new(project['repo']['url'])
   end
 
   def setup_worktree(repo_name, branch)

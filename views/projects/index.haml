@@ -1,0 +1,24 @@
+%a(href="/") ../
+
+%h2 Trunk
+%ul
+  %li
+    %a(href="/projects/#{@project_id}/trunk") trunk
+
+%h2 Branches
+- if @repo.branches.empty?
+  %p No branches are available.
+- else
+  %ul
+    - @repo.branches.each do |branch|
+      %li
+        %a(href="/projects/#{@project_id}/branches/#{branch}") #{branch}
+
+%h2 Tags
+- if @repo.tags.empty?
+  %p No tags are available.
+- else
+  %ul
+    - @repo.tags.each do |tag|
+      %li
+        %a(href="/projects/#{@project_id}/tags/#{tag}") #{tag}

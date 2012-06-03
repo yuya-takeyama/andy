@@ -1,5 +1,5 @@
-%p Choose a repo
+%p Choose a project
 %ul
-  - @repos.each do |key, repo|
+  - @projects.each do |key, project|
     %li
-      %a(href=key) #{key}
+      %a(href="/projects/#{key}") #{project['name']}
