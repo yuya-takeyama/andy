@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'andy'
 require 'yaml'
 require 'digest/sha1'
@@ -5,6 +6,10 @@ require 'digest/sha1'
 class SvnRepo
   def initialize(url)
     @url = url
+  end
+
+  def checkout(path, to)
+    `svn co #{@url+path} #{to}`
   end
 
   def branches
@@ -21,7 +26,7 @@ class SvnRepo
 end
 
 class Andy::App < ::Sinatra::Base
-  set :haml, {:format => :html5}
+  set :haml, {:format => :html5, :encoding => 'utf-8'}
   set :root, Andy::ROOT_DIR
   set :views, File.expand_path('views', settings.root)
   set :config, YAML::load(open(File.expand_path('config/config.yml', settings.root)))
@@ -35,13 +40,20 @@ class Andy::App < ::Sinatra::Base
     end
   end
 
-  get '/:repo/*.apk' do
-    branch = params[:splat].join('/')
-    setup_worktree(params[:repo], branch)
+  get '/projects/:project_id/*/:file.apk' do
+    @path = "/" + params['splat'].join('/')
+    repo_hash = ::Digest::SHA1.hexdigest(@project['repo']['url'])
+    dir = ::File.expand_path("tmp/repos/#{@project_id}/#{repo_hash}#{@path}/bin", settings.root)
+    send_file "#{dir}/#{params[:file]}.apk", :type => 'application/vnd.android.package-archive'
   end
 
   get '/projects/:project_id/*' do
     @path = "/" + params['splat'].join('/')
+    if params['build']
+      build_apk(@project_id, @project, @path)
+      redirect "/projects/#{@project_id}#{@path}"
+    end
+    @apks = apks(@project_id, @project, @path)
     haml :'projects/branch', :locals => {:title => @project['name'] + " - " + @path}
   end
 
@@ -54,28 +66,29 @@ class Andy::App < ::Sinatra::Base
     haml :index
   end
 
-  def repo_config
-    settings.repos[params[:repo]]
+  def build_apk(project_id, project, path)
+    repo_hash = ::Digest::SHA1.hexdigest(project['repo']['url'])
+    dir = ::File.expand_path("tmp/repos/#{project_id}/#{repo_hash}#{path}", settings.root)
+    ::FileUtils.rm_rf(dir) if File.exist? dir
+    ::FileUtils.mkdir_p(dir)
+    @repo.checkout(@path, dir)
+    put_local_properties(dir)
+    orig_dir = Dir.pwd
+    Dir.chdir(dir)
+    java_opt = "_JAVA_OPTIONS='-Dfile.encoding=UTF-8'"
+    result = `#{java_opt} ant debug && #{java_opt} ant release`
+    Dir.chdir(orig_dir)
+    result
+  end
+
+  def apks(project_id, project, path)
+    repo_hash = ::Digest::SHA1.hexdigest(project['repo']['url'])
+    dir = ::File.expand_path("tmp/repos/#{project_id}/#{repo_hash}#{path}/bin", settings.root)
+    Dir.glob(dir + "/*.apk").map {|f| f.gsub(%r{^.*/}, '') }
   end
 
   def repo(project)
     ::Grit::Repo.new(project['repo']['url'])
-  end
-
-  def setup_worktree(repo_name, branch)
-    repo_hash = ::Digest::SHA1.hexdigest(repo_config['url'])
-    dir = ::File.expand_path("tmp/repos/#{repo_name}/#{repo_hash}/#{branch}", settings.root)
-    ::FileUtils.rm_rf(dir) if File.exist? dir
-    ::FileUtils.mkdir_p(dir)
-    grit = ::Grit::Git.new('/tmp')
-    clone_option = {:quiet => true, :verbose => false, :progress => false, :branch => branch}
-    grit.clone(clone_option, repo_config['url'], dir)
-    put_local_properties(dir)
-    orig_dir = Dir.pwd
-    Dir.chdir(dir)
-    result = `ant release`
-    Dir.chdir(orig_dir)
-    result
   end
 
   def put_local_properties(dir)

@@ -1,6 +1,12 @@
 %a(href="/") ../
 
-- if @repo.android_project_root? @path
-  %p This is Android project root.
-- else
+%div
+  %a(href="/projects/#{@project_id}#{@path}?build=on") Build this branch
+
+- unless @repo.android_project_root? @path
   %p This is not Android project root.
+
+%ul
+  - @apks.each do |file|
+    %li
+      %a(href="/projects/#{@project_id}#{@path}/#{file}") #{file}
