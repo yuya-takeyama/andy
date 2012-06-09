@@ -1,13 +1,13 @@
-!= link_to 'Project Top', "/projects/#{@project.id}"
+!= link_to 'Project Top', @project.absolute_path
 
-%div!= link_to 'Build this branch', "/projects/#{@project.id}#{@path}?build=on"
+%div!= link_to 'Build this branch', "#{@branch.absolute_path}?build=on"
 
 - unless @repo.android_project_root? @path
   %p This is not an Android project root.
 
-- if @apks.empty?
+- if @branch.no_apk_files?
   %p No apk files are found. Try to build this branch.
 - else
   %ul
-    - @apks.each do |file|
-      %li!= link_to file, "/projects/#{@project.id}#{@path}/#{file}"
+    - @branch.apk_files.each do |file|
+      %li!= link_to file, "#{@branch.absolute_path}/#{file}"

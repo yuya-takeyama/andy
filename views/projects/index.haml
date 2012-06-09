@@ -2,7 +2,7 @@
 
 %h2 Trunk
 %ul
-  %li!= link_to 'trunk', "/projects/#{@project.id}/trunk"
+  %li!= link_to 'trunk', "#{@project.absolute_path}/trunk"
 
 %h2 Branches
 - if @repo.branches.empty?

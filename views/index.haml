@@ -1,4 +1,4 @@
 %p Choose a project
 %ul
   - @projects.each do |project|
-    %li!= link_to project.name, "/projects/#{project.id}"
+    %li!= link_to project.name, project.absolute_path

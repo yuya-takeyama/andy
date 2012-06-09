@@ -21,19 +21,20 @@ class Andy::App < ::Sinatra::Base
   end
 
   get '/projects/:project_id/*/:file.apk' do
-    @path = "/" + params['splat'].join('/')
-    dir = ::File.expand_path("tmp/repos/#{@project.id}/#{@repo.hash}#{@path}/bin", settings.root)
+    @path   = "/" + params['splat'].join('/')
+    @branch = create_branch(@path)
+    dir = ::File.expand_path("#{@branch.tmp_dir}/bin", settings.root)
     send_file "#{dir}/#{params[:file]}.apk", :type => 'application/vnd.android.package-archive'
   end
 
   get '/projects/:project_id/*' do
-    @path = "/" + params['splat'].join('/')
+    @path   = "/" + params['splat'].join('/')
+    @branch = create_branch(@path)
     if params['build']
       builder = ::Andy::ApkBuilder.new
       builder.build(@project, @path, settings.config['android']['sdk_dir'])
-      redirect "/projects/#{@project.id}#{@path}"
+      redirect @branch.absolute_path
     end
-    @apks = apks(@project, @path)
     haml :'projects/branch', :locals => {:title => @project.name + " - " + @path}
   end
 
@@ -46,9 +47,7 @@ class Andy::App < ::Sinatra::Base
     haml :index
   end
 
-  def apks(project, path)
-    repo = project.repo
-    dir = ::File.expand_path("tmp/repos/#{project.id}/#{repo.hash}#{path}/bin", settings.root)
-    Dir.glob(dir + "/*.apk").map {|f| f.gsub(%r{^.*/}, '') }
+  def create_branch(path)
+    ::Andy::Branch.new(@project, path)
   end
 end

@@ -7,4 +7,8 @@ class Andy::Project
     @name            = config['name']
     @keystore_config = config['keystore'] || {}
   end
+
+  def absolute_path
+    "/projects/#{@id}"
+  end
 end
