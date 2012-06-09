@@ -3,7 +3,7 @@ Andy
 
 Andy builds apk file from your repo and distributes for you.
 
-Currently, and can checkout worktree only from Subversion.
+Currently, Andy can checkout worktree only from Subversion.
 
 Author
 ------
