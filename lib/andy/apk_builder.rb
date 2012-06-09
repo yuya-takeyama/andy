@@ -2,8 +2,8 @@ require 'digest/sha1'
 
 class Andy::ApkBuilder
   def build(project, path, sdk_dir)
-    repo = @project.repo
-    dir = ::File.expand_path("tmp/repos/#{@project.id}/#{repo.hash}#{path}", settings.root)
+    repo = project.repo
+    dir = ::File.expand_path("tmp/repos/#{project.id}/#{repo.hash}#{path}", settings.root)
     ::FileUtils.rm_rf(dir) if File.exist? dir
     ::FileUtils.mkdir_p(dir)
     repo.checkout(path, dir)
