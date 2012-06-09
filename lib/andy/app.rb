@@ -1,5 +1,4 @@
 # coding: utf-8
-require 'andy'
 require 'yaml'
 require 'digest/sha1'
 
