@@ -1,0 +1,2 @@
+module Andy::Repository
+end
