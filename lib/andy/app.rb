@@ -1,27 +1,30 @@
 # coding: utf-8
 require 'andy'
+require 'andy/command_invoker/git'
+require 'andy/command_invoker/svn'
 require 'yaml'
 require 'digest/sha1'
 
 class SvnRepo
   def initialize(url)
     @url = url
+    @svn = ::Andy::CommandInvoker::Svn.new
   end
 
   def checkout(path, to)
-    `svn co #{@url+path} #{to}`
+    @svn.invoke 'co', @url + path, to
   end
 
   def branches
-    `svn ls #{@url}/branches`.split("\n").grep(%r{/$}).map{|r| r.sub(%r{/$}, '') }
+    @svn.invoke('ls', "#{@url}/branches").split("\n").grep(%r{/$}).map{|r| r.sub(%r{/$}, '') }
   end
 
   def tags
-    `svn ls #{@url}/tags`.split("\n").grep(%r{/$}).map{|r| r.sub(%r{/$}, '') }
+    @svn.invoke('ls', "#{@url}/tags").split("\n").grep(%r{/$}).map{|r| r.sub(%r{/$}, '') }
   end
 
   def android_project_root?(path)
-    `svn ls #{@url}#{path}`.split("\n").any? {|f| f == "AndroidManifest.xml" }
+    @svn.invoke('ls', @url + path).split("\n").any? {|f| f == "AndroidManifest.xml" }
   end
 end
 
