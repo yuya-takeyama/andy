@@ -28,7 +28,8 @@ class Andy::App < ::Sinatra::Base
   get '/projects/:project_id/*' do
     @path = "/" + params['splat'].join('/')
     if params['build']
-      build_apk(@project_id, @project, @path)
+      builder = ::Andy::ApkBuilder.new
+      builder.build(@repo, @project_id, @project, @path, settings.config['android']['sdk_dir'])
       redirect "/projects/#{@project_id}#{@path}"
     end
     @apks = apks(@project_id, @project, @path)
@@ -44,30 +45,9 @@ class Andy::App < ::Sinatra::Base
     haml :index
   end
 
-  def build_apk(project_id, project, path)
-    repo_hash = ::Digest::SHA1.hexdigest(project['repo']['url'])
-    dir = ::File.expand_path("tmp/repos/#{project_id}/#{repo_hash}#{path}", settings.root)
-    ::FileUtils.rm_rf(dir) if File.exist? dir
-    ::FileUtils.mkdir_p(dir)
-    @repo.checkout(@path, dir)
-    put_local_properties(dir)
-    orig_dir = Dir.pwd
-    Dir.chdir(dir)
-    java_opt = "_JAVA_OPTIONS='-Dfile.encoding=UTF-8'"
-    result = `#{java_opt} ant debug && #{java_opt} ant release`
-    Dir.chdir(orig_dir)
-    result
-  end
-
   def apks(project_id, project, path)
     repo_hash = ::Digest::SHA1.hexdigest(project['repo']['url'])
     dir = ::File.expand_path("tmp/repos/#{project_id}/#{repo_hash}#{path}/bin", settings.root)
     Dir.glob(dir + "/*.apk").map {|f| f.gsub(%r{^.*/}, '') }
-  end
-
-  def put_local_properties(dir)
-    open("#{dir}/local.properties", 'w') do |file|
-      file.puts "sdk.dir=#{settings.config['android']['sdk_dir']}"
-    end
   end
 end

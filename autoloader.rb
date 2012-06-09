@@ -1,4 +1,5 @@
 module Andy
+  autoload :ApkBuilder, 'andy/apk_builder'
   autoload :App, 'andy/app'
   module CommandInvoker
     autoload :Git, 'andy/command_invoker/git'
