@@ -4,7 +4,9 @@ require 'yaml'
 require 'digest/sha1'
 
 class Andy::App < ::Sinatra::Base
-  set :haml, {:format => :html5, :encoding => 'utf-8'}
+  register Padrino::Helpers
+
+  set :haml, {:format => :html5, :encoding => 'utf-8', :escape_html => true}
   set :root, Andy::ROOT_DIR
   set :views, File.expand_path('views', settings.root)
   set :config, YAML::load(open(File.expand_path('config/config.yml', settings.root)))
@@ -41,7 +43,7 @@ class Andy::App < ::Sinatra::Base
   end
 
   get '/' do
-    @projects = settings.config['projects']
+    @projects = settings.config['projects'].map {|id, config| ::Andy::Project.new(id, config) }
     haml :index
   end
 

@@ -1,5 +1,4 @@
 %p Choose a project
 %ul
-  - @projects.each do |key, project|
-    %li
-      %a(href="/projects/#{key}") #{project['name']}
+  - @projects.each do |project|
+    %li!= link_to project.name, "/projects/#{project.id}"

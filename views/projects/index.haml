@@ -1,9 +1,8 @@
-%a(href="/") ../
+!= link_to 'Home', '/'
 
 %h2 Trunk
 %ul
-  %li
-    %a(href="/projects/#{@project.id}/trunk") trunk
+  %li!= link_to 'trunk', "/projects/#{@project.id}/trunk"
 
 %h2 Branches
 - if @repo.branches.empty?
@@ -11,8 +10,7 @@
 - else
   %ul
     - @repo.branches.each do |branch|
-      %li
-        %a(href="/projects/#{@project.id}/branches/#{branch}") #{branch}
+      %li!= link_to branch, "/projects/#{@project.id}/branches/#{branch}"
 
 %h2 Tags
 - if @repo.tags.empty?
@@ -20,5 +18,4 @@
 - else
   %ul
     - @repo.tags.each do |tag|
-      %li
-        %a(href="/projects/#{@project.id}/tags/#{tag}") #{tag}
+      %li!= link_to tag, "/projects/#{@project.id}/tags/#{tag}"
