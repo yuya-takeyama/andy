@@ -5,6 +5,7 @@ module Andy
     autoload :Git, 'andy/command_invoker/git'
     autoload :Svn, 'andy/command_invoker/svn'
   end
+  autoload :Project, 'andy/project'
   module Repository
     autoload :Svn, 'andy/repository/svn'
   end

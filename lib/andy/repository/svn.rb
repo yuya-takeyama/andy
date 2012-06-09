@@ -1,7 +1,13 @@
+require 'digest/sha1'
+
 class Andy::Repository::Svn
   def initialize(url)
     @url = url
     @svn = ::Andy::CommandInvoker::Svn.new
+  end
+
+  def hash
+    ::Digest::SHA1.hexdigest(@url)
   end
 
   def checkout(path, to)

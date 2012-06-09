@@ -3,7 +3,7 @@
 %h2 Trunk
 %ul
   %li
-    %a(href="/projects/#{@project_id}/trunk") trunk
+    %a(href="/projects/#{@project.id}/trunk") trunk
 
 %h2 Branches
 - if @repo.branches.empty?
@@ -12,7 +12,7 @@
   %ul
     - @repo.branches.each do |branch|
       %li
-        %a(href="/projects/#{@project_id}/branches/#{branch}") #{branch}
+        %a(href="/projects/#{@project.id}/branches/#{branch}") #{branch}
 
 %h2 Tags
 - if @repo.tags.empty?
@@ -21,4 +21,4 @@
   %ul
     - @repo.tags.each do |tag|
       %li
-        %a(href="/projects/#{@project_id}/tags/#{tag}") #{tag}
+        %a(href="/projects/#{@project.id}/tags/#{tag}") #{tag}

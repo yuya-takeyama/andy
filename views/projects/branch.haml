@@ -1,7 +1,7 @@
 %a(href="/") ../
 
 %div
-  %a(href="/projects/#{@project_id}#{@path}?build=on") Build this branch
+  %a(href="/projects/#{@project.id}#{@path}?build=on") Build this branch
 
 - unless @repo.android_project_root? @path
   %p This is not an Android project root.
@@ -12,4 +12,4 @@
   %ul
     - @apks.each do |file|
       %li
-        %a(href="/projects/#{@project_id}#{@path}/#{file}") #{file}
+        %a(href="/projects/#{@project.id}#{@path}/#{file}") #{file}

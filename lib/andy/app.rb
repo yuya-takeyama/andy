@@ -12,16 +12,16 @@ class Andy::App < ::Sinatra::Base
 
   ['/projects/:project_id', '/projects/:project_id/*'].each do |path|
     before path do
-      @project_id = params[:project_id]
-      @project    = settings.config['projects'][@project_id]
-      @repo       = ::Andy::Repository::Svn.new(@project['repo']['url'])
+      config        = settings.config['projects'][params[:project_id]]
+      @project      = ::Andy::Project.new(params[:project_id], config)
+      @project.repo = ::Andy::Repository::Svn.new(config['repo']['url'])
+      @repo         = @project.repo
     end
   end
 
   get '/projects/:project_id/*/:file.apk' do
     @path = "/" + params['splat'].join('/')
-    repo_hash = ::Digest::SHA1.hexdigest(@project['repo']['url'])
-    dir = ::File.expand_path("tmp/repos/#{@project_id}/#{repo_hash}#{@path}/bin", settings.root)
+    dir = ::File.expand_path("tmp/repos/#{@project.id}/#{@repo.hash}#{@path}/bin", settings.root)
     send_file "#{dir}/#{params[:file]}.apk", :type => 'application/vnd.android.package-archive'
   end
 
@@ -29,15 +29,15 @@ class Andy::App < ::Sinatra::Base
     @path = "/" + params['splat'].join('/')
     if params['build']
       builder = ::Andy::ApkBuilder.new
-      builder.build(@repo, @project_id, @project, @path, settings.config['android']['sdk_dir'])
-      redirect "/projects/#{@project_id}#{@path}"
+      builder.build(@project, @path, settings.config['android']['sdk_dir'])
+      redirect "/projects/#{@project.id}#{@path}"
     end
-    @apks = apks(@project_id, @project, @path)
-    haml :'projects/branch', :locals => {:title => @project['name'] + " - " + @path}
+    @apks = apks(@project, @path)
+    haml :'projects/branch', :locals => {:title => @project.name + " - " + @path}
   end
 
   get '/projects/:project_id' do
-    haml :'projects/index', :locals => {:title => @project['name']}
+    haml :'projects/index', :locals => {:title => @project.name}
   end
 
   get '/' do
@@ -45,9 +45,9 @@ class Andy::App < ::Sinatra::Base
     haml :index
   end
 
-  def apks(project_id, project, path)
-    repo_hash = ::Digest::SHA1.hexdigest(project['repo']['url'])
-    dir = ::File.expand_path("tmp/repos/#{project_id}/#{repo_hash}#{path}/bin", settings.root)
+  def apks(project, path)
+    repo = project.repo
+    dir = ::File.expand_path("tmp/repos/#{project.id}/#{repo.hash}#{path}/bin", settings.root)
     Dir.glob(dir + "/*.apk").map {|f| f.gsub(%r{^.*/}, '') }
   end
 end
