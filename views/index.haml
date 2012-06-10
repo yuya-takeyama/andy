@@ -1,4 +1,10 @@
-%p Choose a project
+.hero-unit
+  %h1 Andy
+
+  %div
+    %p Andy checkouts Android project from your repository and builds apk files for you.
+    %p Choose a project
+
 %ul
   - @projects.each do |project|
     %li!= link_to project.name, project.absolute_path

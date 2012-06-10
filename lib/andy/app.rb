@@ -11,6 +11,10 @@ class Andy::App < ::Sinatra::Base
   set :config, YAML::load(open(File.expand_path('config/config.yml', settings.root)))
   set :repos, settings.config['repositories']
 
+  before do
+    @projects = settings.config['projects'].map {|id, config| ::Andy::Project.new(id, config) }
+  end
+
   ['/projects/:project_id', '/projects/:project_id/*'].each do |path|
     before path do
       config        = settings.config['projects'][params[:project_id]]
@@ -43,7 +47,6 @@ class Andy::App < ::Sinatra::Base
   end
 
   get '/' do
-    @projects = settings.config['projects'].map {|id, config| ::Andy::Project.new(id, config) }
     haml :index
   end
 
