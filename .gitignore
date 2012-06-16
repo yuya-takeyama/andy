@@ -3,3 +3,6 @@
 /vendor/bundle
 /tmp/*
 /config/config.yml
+/public/css/bootstrap.css
+/public/css/bootstrap-responsive.css
+/public/js/bootstrap.js
